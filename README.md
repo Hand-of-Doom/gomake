@@ -57,7 +57,7 @@ Gomakefile builds into a Makefile so you keep using make
 
 ## Problems
 ### Is it slow? 
-It's definitely slower than make cause `gomake` builds each `go` statement every time\
+It's definitely slower than make cause gomake builds each go statement every time\
 I can work on optimization but for now this is not my primary goal
 ### Is it Makefile compatible?
 No. Gomakefile targets are bash scripts\
