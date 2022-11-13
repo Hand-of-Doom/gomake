@@ -12,11 +12,9 @@ import (
 )
 
 var gofileTpl = `package main
-
 {{range $import := .imports}}
 {{$import}}
 {{end}}
-
 func main() {
 	{{.body}}
 }`
@@ -29,7 +27,6 @@ func run(args []string) error {
 			return err
 		}
 		gomakefile = string(fbytes)
-		gomakefile += "\n"
 	}
 
 	regexpGoStatement := regexp.MustCompile(`(?s)go \{(?P<body>.*)}`)
@@ -98,11 +95,11 @@ func run(args []string) error {
 	globalScope := regexpGlobalScope.FindStringSubmatch(gomakefile)[globalScopeBlockIndex]
 	gomakefile = strings.ReplaceAll(gomakefile, globalScope, "")
 
-	regexpTargetStatement := regexp.MustCompile(`(?m)(?P<name>\S+):(?P<block>(.*\n)+)(\S+:|\n)`)
+	regexpTargetStatement := regexp.MustCompile(`(?Um)(?P<name>\S+):([\w ]+)?\n(?P<block>(.*\n)+)((\S+:([\w ]+)?)|$)`)
 	targetBlockIndex, targetNameIndex :=
 		regexpTargetStatement.SubexpIndex("block"),
 		regexpTargetStatement.SubexpIndex("name")
-	targets := regexpTargetStatement.FindAllStringSubmatch(gomakefile+"\n", -1)
+	targets := regexpTargetStatement.FindAllStringSubmatch(gomakefile, -1)
 	for _, target := range targets {
 		workingDir, err := os.Getwd()
 		if err != nil {
@@ -114,9 +111,10 @@ func run(args []string) error {
 		if err = os.WriteFile(fmt.Sprintf("%s/%s", tempDir, name), []byte(newBlock), os.ModePerm); err != nil {
 			return err
 		}
-		gomakefile = strings.ReplaceAll(gomakefile, oldBlock, fmt.Sprintf("\n\t./%s", name))
+		gomakefile = strings.ReplaceAll(gomakefile, oldBlock, fmt.Sprintf("\t./%s\n", name))
 	}
 
+	gomakefile = strings.ReplaceAll(gomakefile, "    ", "\t")
 	err = os.WriteFile(fmt.Sprintf("%s/Makefile", tempDir), []byte(gomakefile), os.ModePerm)
 	if err != nil {
 		return err

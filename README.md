@@ -4,7 +4,7 @@
 Latest version\
 You must have go 1.19 installed
 ```console
-go install github.com/Hand-of-Doom/gomake@v1.0.0
+go install github.com/Hand-of-Doom/gomake@v1.0.1
 ```
 
 ## How to use
